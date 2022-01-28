@@ -121,7 +121,7 @@ class FlexSimEnv(gym.Env):
 
         self.serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.serversocket.bind((host, port))
-        self.serversocket.listen();
+        self.serversocket.listen()
 
         (self.clientsocket, self.socketaddress) = self.serversocket.accept()
         if self.verbose:
