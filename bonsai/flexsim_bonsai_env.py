@@ -25,15 +25,13 @@ class FlexSimBonsaiEnv():
 
     def reset(self, config) -> Dict[str, Any]:
         # Perform initialization in preparation for running an episode using the values in the config dictionary.
-        self.configDict = config # store the config dict so that it can be used each step to get the state
-        for key, value in config.items():
-            self._set_parameter(key, value)
+        self._set_parameters(config)
 
         # Reset state from the previous episode that needs to be cleared.
         self._reset_flexsim()
-        self._get_observation()
+        state, reward, done = self._get_observation()
 
-        state = {
+        observation = {
             # If 'sim_halted' is set to True, that indicates that the simulator is unable to continue and the
             # episode will be discarded. If your simulator cannot reach an unrecoverable state, always set 'sim_halted'
             # to False.
@@ -41,29 +39,25 @@ class FlexSimBonsaiEnv():
             #'key': value,
         }
         # Add simulator state as dictionary with key as the state and value as the state's value.
-        for key in config:
-            value = self._get_parameter(key)
-            state[key] = value
-        return state
+        for key, value in state.items():
+            observation[key] = value
+        return observation
 
     def step(self, action) -> Dict[str, Any]:
         # Perform a simulation step using the values in the action dictionary.
-
-        for key, value in action.items():
-            self._set_parameter(key, value)
+        self._set_parameters(action)
         
-        self._take_action(action)
-        self._get_observation()
+        self._take_action()
+        state, reward, done = self._get_observation()
 
-        state = {
+        observation = {
             'sim_halted': False,
             #'key': value,
         }
         # Add simulator state as dictionary with key as the state and value as the state's value.
-        for key in self.configDict:
-            value = self._get_parameter(key)
-            state[key] = value
-        return state
+        for key, value in state.items():
+            observation[key] = value
+        return observation
 
     def close(self):
         self._close_flexsim()
@@ -110,11 +104,10 @@ class FlexSimBonsaiEnv():
 
         return state, reward, done
     
-    def _take_action(self, action):
-        actionStr = json.dumps(action, cls=NumpyEncoder)
+    def _take_action(self):
         if self.verbose:
-            print("Sending Action message: " + actionStr)
-        actionMessage = "TakeAction:" + actionStr + "?"
+            print("Sending Action message")
+        actionMessage = "TakeAction?"
         self._socket_send(actionMessage.encode())
 
     def _get_parameter(self, name):
@@ -133,6 +126,12 @@ class FlexSimBonsaiEnv():
         if self.verbose:
             print("Sending SetParam message")
         getParamString = "SetParam:" + name + ":" + str(value) + "?"
+        self._socket_send(getParamString.encode())
+
+    def _set_parameters(self, params):
+        if self.verbose:
+            print("Sending SetParams message")
+        getParamString = "SetParams:" + json.dumps(params, cls=NumpyEncoder) + "?"
         self._socket_send(getParamString.encode())
 
 
