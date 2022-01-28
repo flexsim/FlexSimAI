@@ -114,6 +114,24 @@ class FlexSimEnv(gym.Env):
         actionMessage = "TakeAction:" + actionStr + "?"
         self._socket_send(actionMessage.encode())
 
+    def _get_parameter(self, name):
+        if self.verbose:
+            print("Sending GetParam " + name + " message")
+        getParamString = "GetParam:" + name + "?"
+        self._socket_send(getParamString.encode())
+
+        if self.verbose:
+            print("Waiting for GetParam:" + name + " message")
+        getParamBytes = self._socket_recv()
+
+        return json.loads(getParamBytes)
+
+    def _set_parameter(self, name, value):
+        if self.verbose:
+            print("Sending SetParam message")
+        getParamString = "SetParam:" + name + ":" + str(value) + "?"
+        self._socket_send(getParamString.encode())
+
 
     def _socket_init(self, host, port):
         if self.verbose:
