@@ -1,1 +1,3 @@
 /bonsai/.venv/*
+/bonsai/connector/__pycache__
+/bonsai/installer/*.msi
