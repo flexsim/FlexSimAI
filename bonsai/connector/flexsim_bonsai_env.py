@@ -167,7 +167,7 @@ class FlexSimBonsaiEnv():
                 raise RuntimeError("Socket connection broken")
             if chunk[-1] == ord('!'):
                 chunks.append(chunk[:-1])
-                break;
+                break
             else:
                 chunks.append(chunk)
         return b''.join(chunks)
@@ -192,3 +192,19 @@ class NumpyEncoder(json.JSONEncoder):
         elif isinstance(obj, np.ndarray):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
+
+def main():
+    env = FlexSimBonsaiEnv(
+        flexsimPath = "C:/Program Files/FlexSim 2022 Update 1 Beta/program/flexsim.exe",
+        modelPath = "C:/src/samples/ChangeoverTimes/Model.fsm",
+        verbose = True,
+        visible = True
+        )
+    print(f"FlexSim Environment Ready")
+    input("Waiting for input to release FlexSim...")
+    env._release_flexsim()
+    input("Waiting for input to close FlexSim...")
+    env.close()
+
+if __name__ == "__main__":
+    main()

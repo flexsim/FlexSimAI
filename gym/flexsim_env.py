@@ -169,7 +169,7 @@ class FlexSimEnv(gym.Env):
                 raise RuntimeError("Socket connection broken")
             if chunk[-1] == ord('!'):
                 chunks.append(chunk[:-1])
-                break;
+                break
             else:
                 chunks.append(chunk)
         return b''.join(chunks)
