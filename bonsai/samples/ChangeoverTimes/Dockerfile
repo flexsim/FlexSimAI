@@ -9,7 +9,14 @@ COPY ./samples/ChangeoverTimes ./samples/ChangeoverTimes
 COPY ./installer ./installer
 
 # Install FlexSim
-RUN msiexec /i installer\FlexSim_22.1.0_Beta_x64.msi /passive /norestart
+RUN msiexec /i installer\FlexSim_22.1.0_x64.msi INSTALLDIR=C:\FlexSim /passive /norestart
+
+# Copy license configuration file
+ARG programDir="C:/FlexSim/program/"
+COPY ./installer/flexsim_server.lic ${programDir}
+
+# Set environment variable for license server
+ENV LM_PROJECT=
 
 # Install python simulator dependencies
 RUN pip3 install -r ./connector/requirements.txt
