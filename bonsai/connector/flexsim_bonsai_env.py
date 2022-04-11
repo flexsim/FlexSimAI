@@ -41,9 +41,7 @@ class FlexSimBonsaiEnv():
 
     def step(self, action) -> Dict[str, Any]:
         # Perform a simulation step using the values in the action dictionary.
-        self._set_parameters(action)
-        
-        self._take_action()
+        self._take_action(action)
         state, reward, done = self._get_observation()
 
         observation = {
@@ -100,10 +98,11 @@ class FlexSimBonsaiEnv():
 
         return state, reward, done
     
-    def _take_action(self):
+    def _take_action(self, action):
+        actionStr = json.dumps(action, cls=NumpyEncoder)
         if self.verbose:
-            print("Sending Action message")
-        actionMessage = "TakeAction?"
+            print("Sending Action message: " + actionStr)
+        actionMessage = "TakeAction:" + actionStr + "?"
         self._socket_send(actionMessage.encode())
 
     def _get_parameter(self, name):

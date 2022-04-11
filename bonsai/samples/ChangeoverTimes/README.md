@@ -13,6 +13,7 @@
 | LastItemType | The last itemtype processed. |
 | Time | The current simulation time. |
 | Throughput | The current throughput of the model. |
+| StochasticsLicensed | The availability of FlexSim's stochastics license. |
 
 | Action | Description | 
 | ------ | -------------------- |
@@ -42,7 +43,9 @@ Then install the Python requirements of this sample by:
 pip install -r requirements.txt
 ```
 
-> Install and license FlexSim 2022 Update 1 Beta.
+> Install and license FlexSim 2022 Update 2 or later.
+
+If using a license server for Bonsai instance licensing, adjust flexsim_server.lic with the server's ip address and adjust the Dockerfile script with the PROJECT string from the license server's options file. Optionally, add an LM_PROJECT environment variable to your local machine for local testing using the license server.
 
 ### 3. Connect local instance of the simulator
 

@@ -3,6 +3,7 @@
 import os
 import time
 import sys
+import random
 from microsoft_bonsai_api.simulator.client import BonsaiClient, BonsaiClientConfig
 from microsoft_bonsai_api.simulator.generated.models import SimulatorInterface, SimulatorState, SimulatorSessionResponse
 
@@ -58,6 +59,8 @@ def main():
                 time.sleep(event.idle.callback_time)
             elif event.type == "EpisodeStart":
                 print(f"config {event.episode_start.config}")
+                seed = random.randint(1, 255)
+                sim_model.seed(seed)
                 sim_model_state = sim_model.reset(event.episode_start.config)
                 print(f"state {sim_model_state}")
             elif event.type == "EpisodeStep":
