@@ -37,7 +37,7 @@ def main():
     sequence_id = 1
     sim_model = FlexSimBonsaiEnv(
         flexsimPath = "C:/FlexSim/program/flexsim.exe",
-        modelPath = "C:/src/samples/ChangeoverTimes/Model.fsm",
+        modelPath = "C:/src/samples/JobScheduling/Model.fsm",
         verbose = True,
         visible = False
         )

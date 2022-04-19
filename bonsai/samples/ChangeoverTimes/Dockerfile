@@ -1,5 +1,5 @@
 # See Image Variants at https://hub.docker.com/_/python for information about different flavors of Python containers.
-FROM winamd64/python:3
+FROM winamd64/python:3-windowsservercore-1809
 
 WORKDIR /src
 

@@ -103,7 +103,7 @@ docker push <WORKSPACE_ACR_PATH>/changeovertimes-container:latest
 Create a Bonsai simulator package and run training with it by:
 
 ```
-bonsai simulator package container create -n ChangeoverTimes-pkg -u <WORKSPACE_ACR_PATH>/changeovertimes-container:latest --max-instance-count 25 -r 1 -m 1 -p Linux
+bonsai simulator package container create -n ChangeoverTimes-pkg -u <WORKSPACE_ACR_PATH>/changeovertimes-container:latest --max-instance-count 25 -r 1 -m 1 -p Windows
 bonsai brain version start-training -n ChangeoverTimes-brain --simulator-package-name ChangeoverTimes-pkg
 ```
 

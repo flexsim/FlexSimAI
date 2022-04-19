@@ -1,15 +1,15 @@
 # See Image Variants at https://hub.docker.com/_/python for information about different flavors of Python containers.
-FROM winamd64/python:3
+FROM winamd64/python:3-windowsservercore-1809
 
 WORKDIR /src
 
 # Copy connector and sample files to image
 COPY ./connector ./connector
-COPY ./samples/ChangeoverTimes ./samples/ChangeoverTimes
+COPY ./samples/JobScheduling ./samples/JobScheduling
 COPY ./installer ./installer
 
 # Install FlexSim
-RUN msiexec /i installer\FlexSim_22.1.0_x64.msi INSTALLDIR=C:\FlexSim /passive /norestart
+RUN msiexec /i installer\FlexSim_22.2.0_Beta_x64.msi INSTALLDIR=C:\FlexSim /passive /norestart
 
 # Copy license configuration file
 ARG programDir="C:/FlexSim/program/"
@@ -26,4 +26,4 @@ RUN pip3 install -r ./connector/requirements.txt
 #ENV SIM_WORKSPACE=
 
 # Run the simulator
-CMD ["python", "-u", "samples/ChangeoverTimes/main.py"]
+CMD ["python", "-u", "samples/JobScheduling/main.py"]
