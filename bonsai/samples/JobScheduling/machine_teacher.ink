@@ -17,7 +17,7 @@ const StepCount = 2
 
 # This type represents the observations that come from FlexSim,
 # in this particular model.
-type SimState {
+type LearningState {
     # the current model time
     Time: number,
 
@@ -31,14 +31,44 @@ type SimState {
     # The step times for the incomplete steps of the jobs in progress.
     WIPTimes: number<0 .. 60>[(StepCount - 1) * StepCount / 2],
 
-    # The total time any processor has been blocked.
+    # The total time any processor has been blocked, since the last action
     # A processor is blocked from the time it finishes the current job
     # until the next processor can accept the job.
-    TotalBlockTime: number,
+    BlockTime: number,
+
+    # The total number of items finished, since the last action
+    Throughput: number,
+}
+
+# I also include the next job mask
+# These values are ignored for learning
+type SimState extends LearningState {
+    NextJobMask: number<0,1,>[20],
 }
 
 type SimAction {
-    NextJob: number<1 .. JobCount step 1>,
+    NextJob: number<
+        J1 = 1, 
+        J2 = 2,
+        J3 = 3,
+        J4 = 4,
+        J5 = 5,
+        J6 = 6,
+        J7 = 7,
+        J8 = 8,
+        J9 = 9,
+        J10 = 10,
+        J11 = 11,
+        J12 = 12,
+        J13 = 13,
+        J14 = 14,
+        J15 = 15,
+        J16 = 16,
+        J17 = 17,
+        J18 = 18,
+        J19 = 19,
+        J20 = 20,
+    >,
 }
 
 type SimConfig {
@@ -52,7 +82,15 @@ simulator FlexSimSimulator(action: SimAction, config: SimConfig): SimState {
 }
 
 graph (input: SimState) {
-    concept MinimizeBlockTime(input): SimAction {
+
+    concept RemoveMask(input) : LearningState {
+        programmed function(s: SimState): LearningState {
+            # use cast to avoid writing out all the fields one by one -- works if LearningState is a subset of ObservableState
+            return LearningState(s)
+        }
+    }
+
+    output concept MinimizeBlockTime(RemoveMask) : SimAction {
         curriculum {
             # The source of training for this concept is a simulator
             # that takes an action as an input and outputs a state.
@@ -62,12 +100,16 @@ graph (input: SimState) {
                 EpisodeIterationLimit: 250
             }
 
+            mask function(s: SimState) {
+                return constraint SimAction { NextJob: number<mask s.NextJobMask> }
+            }
+
             # One way to express the goal is to minimize block time.
             # The simulation should also run for about 1000 time units.
             goal (State: SimState) {
                 minimize BlockTime:
-                    State.TotalBlockTime
-                    in Goal.Range(0, 100)
+                    State.BlockTime
+                    in Goal.RangeBelow(100)
                 reach Time:
                     State.Time
                     in Goal.RangeAbove(1000)
