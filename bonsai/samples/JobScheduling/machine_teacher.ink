@@ -72,8 +72,12 @@ type SimAction {
 }
 
 type SimConfig {
-    JobCount: number<5..20>,
-    StepCount: number<2..4>,
+    JobCount: number<5..20 step 1>,
+    StepCount: number<2..4 step 1>,
+}
+
+function ApplyJobMask(s: SimState) {
+    return constraint SimAction { NextJob: number<mask s.NextJobMask> }
 }
 
 # Using the flexsim simulator
@@ -100,9 +104,7 @@ graph (input: SimState) {
                 EpisodeIterationLimit: 250
             }
 
-            mask function(s: SimState) {
-                return constraint SimAction { NextJob: number<mask s.NextJobMask> }
-            }
+            mask ApplyJobMask
 
             # One way to express the goal is to minimize block time.
             # The simulation should also run for about 1000 time units.
@@ -122,8 +124,8 @@ graph (input: SimState) {
                     JobCount: JobCount,
                     StepCount: StepCount,
                 }
+                
             }
         }
     }
 }
-
