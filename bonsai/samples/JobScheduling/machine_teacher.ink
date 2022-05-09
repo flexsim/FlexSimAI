@@ -43,7 +43,7 @@ type LearningState {
 # I also include the next job mask
 # These values are ignored for learning
 type SimState extends LearningState {
-    NextJobMask: number<0,1,>[20],
+    NextJobMask: number<0,1,>[JobCount],
 }
 
 type SimAction {
@@ -53,27 +53,7 @@ type SimAction {
         J3 = 3,
         J4 = 4,
         J5 = 5,
-        J6 = 6,
-        J7 = 7,
-        J8 = 8,
-        J9 = 9,
-        J10 = 10,
-        J11 = 11,
-        J12 = 12,
-        J13 = 13,
-        J14 = 14,
-        J15 = 15,
-        J16 = 16,
-        J17 = 17,
-        J18 = 18,
-        J19 = 19,
-        J20 = 20,
     >,
-}
-
-type SimConfig {
-    JobCount: number<5..20 step 1>,
-    StepCount: number<2..4 step 1>,
 }
 
 function ApplyJobMask(s: SimState) {
@@ -81,8 +61,8 @@ function ApplyJobMask(s: SimState) {
 }
 
 # Using the flexsim simulator
-simulator FlexSimSimulator(action: SimAction, config: SimConfig): SimState {
-    
+simulator FlexSimSimulator(action: SimAction): SimState {
+
 }
 
 graph (input: SimState) {
@@ -101,30 +81,16 @@ graph (input: SimState) {
             source FlexSimSimulator
 
             training {
-                EpisodeIterationLimit: 250
+                EpisodeIterationLimit: 100
             }
 
             mask ApplyJobMask
 
             # One way to express the goal is to minimize block time.
-            # The simulation should also run for about 1000 time units.
             goal (State: SimState) {
                 minimize BlockTime:
                     State.BlockTime
-                    in Goal.RangeBelow(100)
-                reach Time:
-                    State.Time
-                    in Goal.RangeAbove(1000)
-            }
-
-            # It's not really a lesson; I just want bonsai to tell the model
-            # how it should be configured
-            lesson `Current lesson` {
-                scenario {
-                    JobCount: JobCount,
-                    StepCount: StepCount,
-                }
-                
+                    in Goal.RangeBelow(0)
             }
         }
     }
