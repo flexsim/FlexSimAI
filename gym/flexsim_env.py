@@ -224,7 +224,7 @@ def main():
         )
 
     for i in range(2):
-        env.seed(i)
+        env.seed(i + 1)
         observation = env.reset()
         env.render()
         done = False
