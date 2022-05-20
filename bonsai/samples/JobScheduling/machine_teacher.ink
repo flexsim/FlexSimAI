@@ -1,31 +1,17 @@
-# This is the file for the scheduling example
-# In this example, there are StepCount stations in sequence.
-# The model supports up to 4 stations.
-# There is a list of jobs. Each job knows the time it will
-# take at each step. The job of the brain is to choose
-# which job to do next. That job is best expressed as an index.
-
 inkling "2.0"
 using Goal
 using Math
 
 # The number of jobs per batch
-const JobCount = 5
+const JobCount = 10
 
-# The number of steps that each job goes through
-const StepCount = 2
+# The number of machines each job goes through
+const StepCount = 4
 
-# This type represents the observations that come from FlexSim,
-# in this particular model.
+# This type represents the observations used for learning
+# that come from the FlexSim model.
 type LearningState {
-    # the current model time
-    Time: number,
-
-    # the number of jobs remaining in the batch
-    JobsRemaining: number<0 .. JobCount step 1>,
-
     # The table of times for jobs that still have not begun.
-    # Note the order of dimensions
     JobTimes: number<0 .. 60>[StepCount][JobCount],
 
     # The step times for the incomplete steps of the jobs in progress.
@@ -35,17 +21,21 @@ type LearningState {
     # A processor is blocked from the time it finishes the current job
     # until the next processor can accept the job.
     BlockTime: number,
-
-    # The total number of items finished, since the last action
-    Throughput: number,
 }
 
-# I also include the next job mask
-# These values are ignored for learning
+# SimState represents all observations from the FlexSim model.
+# Only the values contained in LearningState are used for learning.
 type SimState extends LearningState {
+    # NextJobMask is an array that tells Bonsai which jobs it can start
     NextJobMask: number<0,1,>[JobCount],
+
+    # DrawData contains values used to generate a visualization during training
+    DrawData: number[JobCount * 2],
 }
 
+# SimAction represents the actions Bonsai can take.
+# In this example, there is only one action - choose one of 10
+# jobs to start.
 type SimAction {
     NextJob: number<
         J1 = 1, 
@@ -53,40 +43,46 @@ type SimAction {
         J3 = 3,
         J4 = 4,
         J5 = 5,
+        J6 = 6,
+        J7 = 7,
+        J8 = 8,
+        J9 = 9,
+        J10 = 10,
     >,
 }
 
+# ApplyJobMask constrains the NextJob action. This way,
+# Bonsai won't try to start a job that has already started.
 function ApplyJobMask(s: SimState) {
     return constraint SimAction { NextJob: number<mask s.NextJobMask> }
 }
 
-# Using the flexsim simulator
 simulator FlexSimSimulator(action: SimAction): SimState {
-
+    
 }
 
 graph (input: SimState) {
 
+    # The RemoveMask concept removes the data it doesn't need for learning.
     concept RemoveMask(input) : LearningState {
         programmed function(s: SimState): LearningState {
-            # use cast to avoid writing out all the fields one by one -- works if LearningState is a subset of ObservableState
             return LearningState(s)
         }
     }
 
+    # The MinimizeBlockTime concept learns to choose a good job to start, based on the actions
+    # "Good" is defined as choosing a jobs so that the block time is minimized.
     output concept MinimizeBlockTime(RemoveMask) : SimAction {
         curriculum {
-            # The source of training for this concept is a simulator
-            # that takes an action as an input and outputs a state.
             source FlexSimSimulator
 
             training {
-                EpisodeIterationLimit: 100
+                EpisodeIterationLimit: 800,
+                NoProgressIterationLimit: 2000000,
             }
 
             mask ApplyJobMask
 
-            # One way to express the goal is to minimize block time.
             goal (State: SimState) {
                 minimize BlockTime:
                     State.BlockTime
