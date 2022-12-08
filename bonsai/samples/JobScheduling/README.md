@@ -1,3 +1,4 @@
+> The latest version of this content is available [here](https://github.com/flexsim/FlexSimAI/tree/main/bonsai/samples/JobScheduling).
 # Job Scheduling
 
 ![A FlexSim model of a production line](Images/JobSchedulingRun.gif)
@@ -83,23 +84,27 @@ The goal of the brain is to minimize the BlockTime observation.
 ## Training
 
 As training progresses, Bonsai gets better and better at choosing jobs. Usually, Bonsai can
-become proficient after one million iterations.
+become proficient after one million iterations, with small improvements until around five million iterations.
 
-### Goal Satisfaction
+### Training Metrics
 
-For each goal specified in the inkling file, Bonsai computes the ratio of iterations where the goal
-was met compared to the total number of iterations. This value is called the Goal Satisfaction.
+Bonsai tracks several metrics during training to determine its progress. The behavior of each metric is
+described in the following list. For more information on each metric, see
+[Bonsai's documentation on goals](https://learn.microsoft.com/en-us/bonsai/inkling/keywords/goal/).
 
-In this paticular example, the goal is to minimize the block time. The success threshold of the
-goal is set to zero, meaning the goal is reached if there is no block time. However, due to random
-nature of the process times required at each step, block time is unavoidable. Consequently, Bonsai
-cannot always reach the goal, and Goal Satisfaction does not improve very much during training:
-
-![A graph showing slight improvement in goal satisfaction](Images/GoalSatisfaction.png)
-
-However, the total block time per episode decreases dramatically during training:
-
-![A graph showing obvious improvement in block time](Images/TotalValue.png)
+* **Goal Satisfaction** usually starts above 95% and improves to 100% quickly during training.
+* **Goal Robustness** slowly climbs throughout training from around -0.05 to around 0.03.
+* **Success** starts at zero and improves quickly to 100%.
+* **Episode Iterations** remains constant at 800. None of the goals in this example allow for an early termination of the episode.
+* **Minimize - Mean Value** starts at around 30 and decrease to around 16, if training runs long enough. This value is a very 
+  direct measure of how well the brain is doing. The lower the block time on average, the better.
+* **Minimize - Final Value** is whatever the block time accrued since the last action happens to be. This value may or may not
+  improve during training, since it is essentially a random value.
+* **Minimize - Total Value** is the sum of all block time across the episode. This value shows the most dramatic improvement
+  in Bonsai's performance:
+  |![A chart showing a decreasing value](Images/TotalValue.png)|
+  | :---: |
+  | Improvement in Total Block Time vs Training Iterations|
 
 ## Trained Brain Performance
 
@@ -136,14 +141,14 @@ how the model makes decisions. There are two options:
 * Bonsai - the model chooses items to process using a bonsai brain.
 
 To run the model and use the Bonsai brain, see the following steps. Note that the steps
-assume you have [FlexSim](www.flexsim.com) installed, as well as 
+assume you have [FlexSim](https://www.flexsim.com) installed, as well as 
 [Docker Desktop](https://www.docker.com/products/docker-desktop/). The steps also assume
 you already have access to a Bonsai workspace and that you have trained a brain for this
 model, either by training the JobScheduling sample or by making your own brain and simulator.
 If you do not have a workspace, see
 [Getting Started with Bonsai](https://docs.flexsim.com/en/23.0/ModelLogic/ReinforcementLearning/WorkingWithBonsai/GettingStarted/GettingStarted.html#setup).
 
-In the [Bonsai Interface](preview.bons.ai) in your browser:
+In the [Bonsai Interface](https://preview.bons.ai) in your browser:
 1. Click on the brain that you have trained.
 2. Click **Export Brain** button near the top-right corner.
 3. Click the **Export** button to submit the request.
