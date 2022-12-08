@@ -1,5 +1,9 @@
 inkling "2.0"
 using Goal
+using Math
+
+# The FlexSim model and some additional documentation can be found at:
+# https://github.com/flexsim/FlexSimAI/tree/main/bonsai/samples/JobScheduling
 
 # The number of jobs per batch
 const MaxJobCount = 10
@@ -63,7 +67,7 @@ graph (input: SimState) {
             goal (State: SimState) {
                 minimize BlockTime:
                     State.BlockTime
-                    in Goal.RangeBelow(0)
+                    in Goal.RangeBelow(20)
             }
         }
     }
